@@ -40,6 +40,13 @@ type Strategy struct {
 	SplitBrainThresholdSeconds int `json:"splitBrainThresholdSeconds,omitempty"`
 }
 
+// ResourceRef selects a resource subject of the Gslb behavior
+// +k8s:openapi-gen=true
+type ResourceRef struct {
+	// Ingress selects a kubernetes.networking.k8s.io/v1.Ingress resource
+	Ingress metav1.LabelSelector `json:"ingress"`
+}
+
 // GslbSpec defines the desired state of Gslb
 // +k8s:openapi-gen=true
 type GslbSpec struct {
@@ -47,6 +54,8 @@ type GslbSpec struct {
 	Ingress IngressSpec `json:"ingress"`
 	// Gslb Strategy spec
 	Strategy Strategy `json:"strategy"`
+	// ResourceRef spec
+	ResourceRef ResourceRef `json:"resourceRef,omitempty"`
 }
 
 // GslbStatus defines the observed state of Gslb

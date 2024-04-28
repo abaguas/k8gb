@@ -23,6 +23,7 @@ import (
 	"fmt"
 
 	"github.com/k8gb-io/k8gb/controllers/providers/metrics"
+	"github.com/k8gb-io/k8gb/controllers/refresolver"
 
 	k8gbv1beta1 "github.com/k8gb-io/k8gb/api/v1beta1"
 	"github.com/k8gb-io/k8gb/controllers/depresolver"
@@ -44,6 +45,7 @@ type GslbReconciler struct {
 	Config      *depresolver.Config
 	DepResolver depresolver.GslbResolver
 	DNSProvider dns.Provider
+	RefResolver refresolver.GslbReferenceResolver
 	Tracer      trace.Tracer
 }
 
@@ -62,7 +64,7 @@ var m = metrics.Metrics()
 // +kubebuilder:rbac:groups=k8gb.absa.oss,resources=gslbs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8gb.absa.oss,resources=gslbs/status,verbs=get;update;patch
 
-// Reconcile runs main reconiliation loop
+// Reconcile runs main reconciliation loop
 func (r *GslbReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	ctx, span := r.Tracer.Start(ctx, "Reconcile")
 	defer span.End()
@@ -91,6 +93,16 @@ func (r *GslbReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		Str("gslb", gslb.Name).
 		Interface("strategy", gslb.Spec.Strategy).
 		Msg("Resolved strategy")
+
+	err = r.RefResolver.ResolveGslbReferences(gslb, r.Client, r.DNSProvider)
+	if err != nil {
+		m.IncrementError(gslb)
+		return result.RequeueError(fmt.Errorf("resolving Ingress references (%s)", err))
+	}
+	log.Debug().
+		Str("gslb", gslb.Name).
+		Msg("Resolved LoadBalancer and Server configuration referenced by Ingress")
+
 	// == Finalizer business ==
 
 	// Check if the Gslb instance is marked to be deleted, which is

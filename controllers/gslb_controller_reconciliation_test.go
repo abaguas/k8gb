@@ -341,7 +341,6 @@ func TestGslbErrorsIncrement(t *testing.T) {
 	var label = prometheus.Labels{"namespace": settings.gslb.Namespace, "name": settings.gslb.Name}
 	m := mocks.NewMockProvider(ctrl)
 	cnt := testutil.ToFloat64(metrics.Metrics().Get(metrics.K8gbGslbErrorsTotal).AsCounterVec().With(label))
-	m.EXPECT().GslbIngressExposedIPs(gomock.Any()).Return([]string{}, nil).Times(1)
 	m.EXPECT().SaveDNSEndpoint(gomock.Any(), gomock.Any()).Return(fmt.Errorf("save DNS error")).Times(1)
 	m.EXPECT().GetExternalTargets(gomock.Any()).Return(assistant.Targets{}).AnyTimes()
 	m.EXPECT().CreateZoneDelegationForExternalDNS(gomock.Any()).Return(nil).AnyTimes()
@@ -351,7 +350,6 @@ func TestGslbErrorsIncrement(t *testing.T) {
 	require.Error(t, err)
 	// let's break it on different place
 	m.EXPECT().SaveDNSEndpoint(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
-	m.EXPECT().GslbIngressExposedIPs(gomock.Any()).Return([]string{}, fmt.Errorf("exposed IP's error")).AnyTimes()
 	_, err = settings.reconciler.Reconcile(context.TODO(), settings.request)
 	cnt2 := testutil.ToFloat64(metrics.Metrics().Get(metrics.K8gbGslbErrorsTotal).AsCounterVec().With(label))
 	// assert

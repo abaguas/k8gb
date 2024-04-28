@@ -28,6 +28,7 @@ import (
 	"github.com/k8gb-io/k8gb/controllers/logging"
 	"github.com/k8gb-io/k8gb/controllers/providers/dns"
 	"github.com/k8gb-io/k8gb/controllers/providers/metrics"
+	"github.com/k8gb-io/k8gb/controllers/refresolver"
 	"github.com/k8gb-io/k8gb/controllers/tracing"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -112,6 +113,7 @@ func run() error {
 		Config:      config,
 		Client:      mgr.GetClient(),
 		DepResolver: resolver,
+		RefResolver: &refresolver.ReferenceResolver{},
 		Scheme:      mgr.GetScheme(),
 	}
 

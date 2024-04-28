@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"time"
 
+	netv1 "k8s.io/api/networking/v1"
 	externaldns "sigs.k8s.io/external-dns/endpoint"
 
 	ibcl "github.com/infobloxopen/infoblox-go-client"
@@ -71,7 +72,7 @@ func (p *InfobloxProvider) CreateZoneDelegationForExternalDNS(gslb *k8gbv1beta1.
 	if p.config.CoreDNSExposed {
 		addresses, err = p.assistant.CoreDNSExposedIPs()
 	} else {
-		addresses, err = p.assistant.GslbIngressExposedIPs(gslb)
+		addresses = gslb.Status.LoadBalancer.ExposedIPs
 	}
 	if err != nil {
 		m.InfobloxIncrementZoneUpdateError(gslb)
@@ -206,8 +207,8 @@ func (p *InfobloxProvider) GetExternalTargets(host string) (targets assistant.Ta
 	return p.assistant.GetExternalTargets(host, p.config.GetExternalClusterNSNames())
 }
 
-func (p *InfobloxProvider) GslbIngressExposedIPs(gslb *k8gbv1beta1.Gslb) ([]string, error) {
-	return p.assistant.GslbIngressExposedIPs(gslb)
+func (p *InfobloxProvider) GslbExposedIPs(ingress *netv1.Ingress) ([]string, error) {
+	return p.assistant.GslbExposedIPs(ingress)
 }
 
 func (p *InfobloxProvider) SaveDNSEndpoint(gslb *k8gbv1beta1.Gslb, i *externaldns.DNSEndpoint) error {

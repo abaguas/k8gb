@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	k8gbv1beta1 "github.com/k8gb-io/k8gb/api/v1beta1"
 	"github.com/k8gb-io/k8gb/controllers/internal/utils"
 	"github.com/k8gb-io/k8gb/controllers/logging"
 
@@ -120,28 +119,11 @@ func extractIPFromLB(lb corev1.LoadBalancerIngress, ns utils.DNSList) (ips []str
 	return nil, nil
 }
 
-// GslbIngressExposedIPs retrieves list of IP's exposed by all GSLB ingresses
-func (r *Gslb) GslbIngressExposedIPs(gslb *k8gbv1beta1.Gslb) ([]string, error) {
-	nn := types.NamespacedName{
-		Name:      gslb.Name,
-		Namespace: gslb.Namespace,
-	}
-
-	gslbIngress := &netv1.Ingress{}
-
-	err := r.client.Get(context.TODO(), nn, gslbIngress)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			log.Info().
-				Str("gslb", gslb.Name).
-				Msg("Can't find gslb Ingress")
-		}
-		return nil, err
-	}
-
+// GslbExposedIPs retrieves list of IP's exposed by all GSLB ingresses
+func (r *Gslb) GslbExposedIPs(ingress *netv1.Ingress) ([]string, error) {
 	var gslbIngressIPs []string
 
-	for _, ip := range gslbIngress.Status.LoadBalancer.Ingress {
+	for _, ip := range ingress.Status.LoadBalancer.Ingress {
 		if len(ip.IP) > 0 {
 			gslbIngressIPs = append(gslbIngressIPs, ip.IP)
 		}

@@ -113,7 +113,6 @@ func TestCreateZoneDelegationOnExternalDNS(t *testing.T) {
 	defer ctrl.Finish()
 	m := mocks.NewMockAssistant(ctrl)
 	p := NewExternalDNS(a.Config, m)
-	m.EXPECT().GslbIngressExposedIPs(a.Gslb).Return(a.TargetIPs, nil).Times(1)
 	m.EXPECT().SaveDNSEndpoint(a.Config.K8gbNamespace, gomock.Eq(expectedDNSEndpoint)).Return(nil).Times(1).
 		Do(func(ns string, ep *externaldns.DNSEndpoint) {
 			require.True(t, reflect.DeepEqual(ep, expectedDNSEndpoint))

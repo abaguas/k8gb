@@ -22,6 +22,7 @@ import (
 	k8gbv1beta1 "github.com/k8gb-io/k8gb/api/v1beta1"
 	"github.com/k8gb-io/k8gb/controllers/depresolver"
 	"github.com/k8gb-io/k8gb/controllers/providers/assistant"
+	netv1 "k8s.io/api/networking/v1"
 	externaldns "sigs.k8s.io/external-dns/endpoint"
 )
 
@@ -42,8 +43,8 @@ func (p *EmptyDNSProvider) CreateZoneDelegationForExternalDNS(*k8gbv1beta1.Gslb)
 	return
 }
 
-func (p *EmptyDNSProvider) GslbIngressExposedIPs(gslb *k8gbv1beta1.Gslb) (r []string, err error) {
-	return p.assistant.GslbIngressExposedIPs(gslb)
+func (p *EmptyDNSProvider) GslbExposedIPs(ingress *netv1.Ingress) (r []string, err error) {
+	return p.assistant.GslbExposedIPs(ingress)
 }
 
 func (p *EmptyDNSProvider) GetExternalTargets(host string) (targets assistant.Targets) {

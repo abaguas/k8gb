@@ -28,6 +28,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	v1beta1 "github.com/k8gb-io/k8gb/api/v1beta1"
 	assistant "github.com/k8gb-io/k8gb/controllers/providers/assistant"
+	v1 "k8s.io/api/networking/v1"
 	endpoint "sigs.k8s.io/external-dns/endpoint"
 )
 
@@ -96,19 +97,19 @@ func (mr *MockProviderMockRecorder) GetExternalTargets(arg0 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExternalTargets", reflect.TypeOf((*MockProvider)(nil).GetExternalTargets), arg0)
 }
 
-// GslbIngressExposedIPs mocks base method.
-func (m *MockProvider) GslbIngressExposedIPs(arg0 *v1beta1.Gslb) ([]string, error) {
+// GslbExposedIPs mocks base method.
+func (m *MockProvider) GslbExposedIPs(arg0 *v1.Ingress) ([]string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GslbIngressExposedIPs", arg0)
+	ret := m.ctrl.Call(m, "GslbExposedIPs", arg0)
 	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GslbIngressExposedIPs indicates an expected call of GslbIngressExposedIPs.
-func (mr *MockProviderMockRecorder) GslbIngressExposedIPs(arg0 interface{}) *gomock.Call {
+// GslbExposedIPs indicates an expected call of GslbExposedIPs.
+func (mr *MockProviderMockRecorder) GslbExposedIPs(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GslbIngressExposedIPs", reflect.TypeOf((*MockProvider)(nil).GslbIngressExposedIPs), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GslbExposedIPs", reflect.TypeOf((*MockProvider)(nil).GslbExposedIPs), arg0)
 }
 
 // SaveDNSEndpoint mocks base method.

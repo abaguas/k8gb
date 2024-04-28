@@ -29,6 +29,7 @@ import (
 
 	k8gbv1beta1 "github.com/k8gb-io/k8gb/api/v1beta1"
 	"github.com/k8gb-io/k8gb/controllers/depresolver"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	externaldns "sigs.k8s.io/external-dns/endpoint"
 )
@@ -66,7 +67,7 @@ func (p *ExternalDNSProvider) CreateZoneDelegationForExternalDNS(gslb *k8gbv1bet
 	if p.config.CoreDNSExposed {
 		NSServerIPs, err = p.assistant.CoreDNSExposedIPs()
 	} else {
-		NSServerIPs, err = p.assistant.GslbIngressExposedIPs(gslb)
+		NSServerIPs = gslb.Status.LoadBalancer.ExposedIPs
 	}
 	if err != nil {
 		return err
@@ -109,8 +110,8 @@ func (p *ExternalDNSProvider) GetExternalTargets(host string) (targets assistant
 	return p.assistant.GetExternalTargets(host, p.config.GetExternalClusterNSNames())
 }
 
-func (p *ExternalDNSProvider) GslbIngressExposedIPs(gslb *k8gbv1beta1.Gslb) ([]string, error) {
-	return p.assistant.GslbIngressExposedIPs(gslb)
+func (p *ExternalDNSProvider) GslbExposedIPs(ingress *netv1.Ingress) ([]string, error) {
+	return p.assistant.GslbExposedIPs(ingress)
 }
 
 func (p *ExternalDNSProvider) SaveDNSEndpoint(gslb *k8gbv1beta1.Gslb, i *externaldns.DNSEndpoint) error {

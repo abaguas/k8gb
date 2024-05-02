@@ -39,10 +39,7 @@ func (rr *ReferenceResolver) ResolveGslbReferences(gslb *k8gbv1beta1.Gslb, k8sCl
 	if err != nil {
 		return err
 	}
-	servers, err := rr.GetServers(ingress, k8sClient)
-	if err != nil {
-		return err
-	}
+	servers := rr.GetServers(ingress)
 	gslb.Status.Servers = servers
 
 	loadBalancerExposedIPs, err := dnsProvider.GslbExposedIPs(ingress)

@@ -1,20 +1,19 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: test-gslb
+  name: embedded
   namespace: test-gslb
-  labels:
-    app: roundrobin
+  resourceVersion: "999"
 spec:
   ingressClassName: nginx
   rules:
-    - host: roundrobin.cloud.example.com
+    - host: embedded.cloud.example.com
       http:
         paths:
         - path: /
           pathType: Prefix
           backend:
             service:
-                name: frontend-podinfo # Gslb should reflect Healthy status and create associated DNS records
+                name: embedded
                 port:
                   name: http

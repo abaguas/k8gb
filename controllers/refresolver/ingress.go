@@ -120,7 +120,7 @@ func (rr *ReferenceResolver) getGslbIngressRef(gslb *k8gbv1beta1.Gslb, k8sClient
 }
 
 // GetServers retrieves the server configuration of the GSLB from a Kubernetes ingress resource
-func (rr *ReferenceResolver) GetServers(ingress *netv1.Ingress, k8sClient client.Client) ([]*k8gbv1beta1.Server, error) {
+func (rr *ReferenceResolver) GetServers(ingress *netv1.Ingress) []*k8gbv1beta1.Server {
 	servers := []*k8gbv1beta1.Server{}
 
 	for _, rule := range ingress.Spec.Rules {
@@ -145,5 +145,5 @@ func (rr *ReferenceResolver) GetServers(ingress *netv1.Ingress, k8sClient client
 		servers = append(servers, server)
 	}
 
-	return servers, nil
+	return servers
 }

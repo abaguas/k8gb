@@ -31,5 +31,5 @@ type GslbReferenceResolver interface {
 	// GetIngress retrieves a Kubernetes Ingress resource for a GSLB resource
 	GetIngress(gslb *k8gbv1beta1.Gslb, k8sClient client.Client) (*netv1.Ingress, error)
 	// GetServers retrieves Gslb's Server configuration based on a Kubernetes Ingress configuration
-	GetServers(ingress *netv1.Ingress, k8sClient client.Client) ([]*k8gbv1beta1.Server, error)
+	GetServers(ingress *netv1.Ingress) []*k8gbv1beta1.Server
 }

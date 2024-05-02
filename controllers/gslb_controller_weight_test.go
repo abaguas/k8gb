@@ -142,7 +142,6 @@ func TestWeight(t *testing.T) {
 	// act
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-
 			injectWeight := func(ctx context.Context, gslb *k8gbv1beta1.Gslb, client client.Client) error {
 				if !test.injectWeights {
 					return nil
@@ -172,6 +171,7 @@ func TestWeight(t *testing.T) {
 			// settings := provideSettings(t, predefinedConfig)
 			m := mocks.NewMockProvider(ctrl)
 			r := mocks.NewMockGslbResolver(ctrl)
+			m.EXPECT().GslbExposedIPs(gomock.Any()).Return([]string{}, nil).Times(1)
 			m.EXPECT().SaveDNSEndpoint(gomock.Any(), gomock.Any()).Do(assertAnnotation).Return(fmt.Errorf("save DNS error")).Times(1)
 			m.EXPECT().CreateZoneDelegationForExternalDNS(gomock.Any()).Return(nil).AnyTimes()
 			r.EXPECT().ResolveGslbSpec(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(injectWeight).AnyTimes()

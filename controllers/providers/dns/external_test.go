@@ -45,6 +45,11 @@ import (
 )
 
 // test data
+var targetIPs = []string{
+	"10.0.1.38",
+	"10.0.1.40",
+	"10.0.1.39",
+}
 var a = struct {
 	Config              depresolver.Config
 	Gslb                *k8gbv1beta1.Gslb
@@ -69,13 +74,10 @@ var a = struct {
 		var crSampleYaml = "../../../deploy/crds/k8gb.absa.oss_v1beta1_gslb_cr.yaml"
 		gslbYaml, _ := os.ReadFile(crSampleYaml)
 		gslb, _ := utils.YamlToGslb(gslbYaml)
+		gslb.Status.LoadBalancer.ExposedIPs = targetIPs
 		return gslb
 	}(),
-	TargetIPs: []string{
-		"10.0.1.38",
-		"10.0.1.40",
-		"10.0.1.39",
-	},
+	TargetIPs: targetIPs,
 	TargetNSNamesSorted: []string{
 		"gslb-ns-eu-cloud.example.com",
 		"gslb-ns-us-cloud.example.com",

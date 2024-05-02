@@ -35,13 +35,20 @@ func (rr *ReferenceResolver) ResolveGslbReferences(gslb *k8gbv1beta1.Gslb, k8sCl
 		return fmt.Errorf("nil k8s client")
 	}
 
-	// TODO: error handling
 	ingress, err := rr.GetIngress(gslb, k8sClient)
+	if err != nil {
+		return err
+	}
 	servers, err := rr.GetServers(ingress, k8sClient)
+	if err != nil {
+		return err
+	}
 	gslb.Status.Servers = servers
 
 	loadBalancerExposedIPs, err := dnsProvider.GslbExposedIPs(ingress)
+	if err != nil {
+		return err
+	}
 	gslb.Status.LoadBalancer.ExposedIPs = loadBalancerExposedIPs
-
 	return err
 }

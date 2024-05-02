@@ -25,7 +25,9 @@ import (
 
 	k8gbv1beta1 "github.com/k8gb-io/k8gb/api/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	externaldns "sigs.k8s.io/external-dns/endpoint"
 )
 
@@ -59,10 +61,26 @@ func (r *GslbReconciler) getServiceHealthStatus(gslb *k8gbv1beta1.Gslb) (map[str
 	serviceHealth := make(map[string]k8gbv1beta1.HealthStatus)
 	for _, server := range gslb.Status.Servers {
 		serviceHealth[server.Host] = k8gbv1beta1.NotFound
-		for _, service := range server.Services {
-			endpoints := &corev1.Endpoints{}
+		for _, svc := range server.Services {
+			service := &corev1.Service{}
+			finder := client.ObjectKey{
+				Namespace: svc.Namespace,
+				Name:      svc.Name,
+			}
+			err := r.Get(context.TODO(), finder, service)
+			if err != nil {
+				if errors.IsNotFound(err) {
+					continue
+				}
+				return serviceHealth, err
+			}
 
-			err := r.Get(context.TODO(), *service, endpoints)
+			endpoints := &corev1.Endpoints{}
+			nn := types.NamespacedName{
+				Name:      svc.Name,
+				Namespace: svc.Namespace,
+			}
+			err = r.Get(context.TODO(), nn, endpoints)
 			if err != nil {
 				return serviceHealth, err
 			}

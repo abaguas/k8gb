@@ -25,76 +25,79 @@ import (
 
 	k8gbv1beta1 "github.com/k8gb-io/k8gb/api/v1beta1"
 	"github.com/k8gb-io/k8gb/controllers/logging"
-	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 var log = logging.Logger()
 
 // getIngress resolves a Kubernetes Ingress resource from the gslb resource
 func (rr *ReferenceResolver) GetIngress(gslb *k8gbv1beta1.Gslb, k8sClient client.Client) (*netv1.Ingress, error) {
-	ingress, err := rr.getGslbIngressEmbedded(gslb)
-	if err != nil {
-		return nil, err
-	}
-
 	ingressList, err := rr.getGslbIngressRef(gslb, k8sClient)
 	if err != nil {
 		return nil, err
 	}
-
 	for _, ingress := range ingressList {
 		log.Info().
 			Str("IngressName", ingress.Name).
 			Msg("Found Ingress")
 	}
-	ingressList = append(ingressList, *ingress)
+
+	ingress, err := rr.getGslbIngressEmbedded(gslb, k8sClient)
+	if err != nil {
+		return nil, err
+	}
+	if ingress != nil {
+		ingressList = append(ingressList, *ingress)
+	}
+
 	if len(ingressList) != 1 {
-		return nil, fmt.Errorf("Exactly one Ingress resource expected but %d were found", len(ingressList))
+		return nil, fmt.Errorf("exactly one Ingress resource expected but %d were found", len(ingressList))
 	}
 
 	return &ingressList[0], nil
 }
 
 // getGslbIngressEmbedded resolves a Kubernetes Ingress resource embedded in the Gslb spec
-func (rr *ReferenceResolver) getGslbIngressEmbedded(gslb *k8gbv1beta1.Gslb) (*netv1.Ingress, error) {
-	if reflect.DeepEqual(gslb.Spec.Ingress, k8gbv1beta1.Gslb.Spec.Ingress{}) {
+func (rr *ReferenceResolver) getGslbIngressEmbedded(gslb *k8gbv1beta1.Gslb, k8sClient client.Client) (*netv1.Ingress, error) {
+	if reflect.DeepEqual(gslb.Spec.Ingress, k8gbv1beta1.IngressSpec{}) {
 		log.Info().
 			Str("gslb", gslb.Name).
 			Msg("No configuration for Ingress resource")
 		return nil, nil
 	}
 
-	ingress := &netv1.Ingress{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        gslb.Name,
-			Namespace:   gslb.Namespace,
-			Annotations: gslb.Annotations,
-		},
-		Spec: k8gbv1beta1.ToV1IngressSpec(gslb.Spec.Ingress),
+	nn := types.NamespacedName{
+		Name:      gslb.Name,
+		Namespace: gslb.Namespace,
 	}
-
-	err := controllerutil.SetControllerReference(gslb, ingress, r.Scheme)
+	ingress := &netv1.Ingress{}
+	err := k8sClient.Get(context.TODO(), nn, ingress)
 	if err != nil {
+		if errors.IsNotFound(err) {
+			log.Warn().
+				Str("gslb", gslb.Name).
+				Msg("Can't find gslb Ingress")
+		}
 		return nil, err
 	}
-	return ingress, err
+
+	return ingress, nil
 }
 
 // getGslbIngressRef resolves a Kubernetes Ingress resource referenced by the Gslb spec
 func (rr *ReferenceResolver) getGslbIngressRef(gslb *k8gbv1beta1.Gslb, k8sClient client.Client) ([]netv1.Ingress, error) {
+	ingressList := &netv1.IngressList{}
 	if reflect.DeepEqual(gslb.Spec.ResourceRef.Ingress, metav1.LabelSelector{}) {
 		log.Info().
 			Str("gslb", gslb.Name).
 			Msg("No configuration for referenced Ingress resource")
+		return ingressList.Items, nil
 	}
 
-	ingressList := &netv1.IngressList{}
 	selector, err := metav1.LabelSelectorAsSelector(&gslb.Spec.ResourceRef.Ingress)
 	if err != nil {
 		return nil, err
@@ -123,7 +126,7 @@ func (rr *ReferenceResolver) GetServers(ingress *netv1.Ingress, k8sClient client
 	for _, rule := range ingress.Spec.Rules {
 		server := &k8gbv1beta1.Server{
 			Host:     rule.Host,
-			Services: []*types.NamespacedName{},
+			Services: []*k8gbv1beta1.NamespacedName{},
 		}
 		for _, path := range rule.HTTP.Paths {
 			if path.Backend.Service == nil || path.Backend.Service.Name == "" {
@@ -133,25 +136,10 @@ func (rr *ReferenceResolver) GetServers(ingress *netv1.Ingress, k8sClient client
 					Msg("Malformed service definition")
 				continue
 			}
-			serviceKey := client.ObjectKey{
-				Namespace: ingress.Namespace,
-				Name:      path.Backend.Service.Name,
-			}
-			service := &corev1.Service{}
-			err := k8sClient.Get(context.TODO(), serviceKey, service)
-			if err != nil {
-				if errors.IsNotFound(err) {
-					log.Warn().
-						Str("ingress", ingress.Name).
-						Interface("service", serviceKey).
-						Msg("Service Not Found")
-				}
-				return nil, err
-			}
 
-			server.Services = append(server.Services, &types.NamespacedName{
-				Name:      service.Name,
-				Namespace: service.Namespace,
+			server.Services = append(server.Services, &k8gbv1beta1.NamespacedName{
+				Name:      path.Backend.Service.Name,
+				Namespace: ingress.Namespace,
 			})
 		}
 		servers = append(servers, server)

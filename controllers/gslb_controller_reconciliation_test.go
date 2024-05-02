@@ -35,6 +35,7 @@ import (
 	"github.com/k8gb-io/k8gb/controllers/providers/assistant"
 	"github.com/k8gb-io/k8gb/controllers/providers/dns"
 	"github.com/k8gb-io/k8gb/controllers/providers/metrics"
+	"github.com/k8gb-io/k8gb/controllers/refresolver"
 	"github.com/k8gb-io/k8gb/controllers/tracing"
 
 	str "github.com/AbsaOSS/gopkg/string"
@@ -341,6 +342,7 @@ func TestGslbErrorsIncrement(t *testing.T) {
 	var label = prometheus.Labels{"namespace": settings.gslb.Namespace, "name": settings.gslb.Name}
 	m := mocks.NewMockProvider(ctrl)
 	cnt := testutil.ToFloat64(metrics.Metrics().Get(metrics.K8gbGslbErrorsTotal).AsCounterVec().With(label))
+	m.EXPECT().GslbExposedIPs(gomock.Any()).Return([]string{}, nil).Times(1)
 	m.EXPECT().SaveDNSEndpoint(gomock.Any(), gomock.Any()).Return(fmt.Errorf("save DNS error")).Times(1)
 	m.EXPECT().GetExternalTargets(gomock.Any()).Return(assistant.Targets{}).AnyTimes()
 	m.EXPECT().CreateZoneDelegationForExternalDNS(gomock.Any()).Return(nil).AnyTimes()
@@ -350,6 +352,7 @@ func TestGslbErrorsIncrement(t *testing.T) {
 	require.Error(t, err)
 	// let's break it on different place
 	m.EXPECT().SaveDNSEndpoint(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+	m.EXPECT().GslbExposedIPs(gomock.Any()).Return([]string{}, fmt.Errorf("exposeed IPs error")).AnyTimes()
 	_, err = settings.reconciler.Reconcile(context.TODO(), settings.request)
 	cnt2 := testutil.ToFloat64(metrics.Metrics().Get(metrics.K8gbGslbErrorsTotal).AsCounterVec().With(label))
 	// assert
@@ -1309,9 +1312,10 @@ func provideSettings(t *testing.T, expected depresolver.Config) (settings testSe
 	defer cleanup()
 	// Create a GslbReconciler object with the scheme and fake client.
 	r := &GslbReconciler{
-		Client: cl,
-		Scheme: s,
-		Tracer: tracer,
+		Client:      cl,
+		RefResolver: &refresolver.ReferenceResolver{},
+		Scheme:      s,
+		Tracer:      tracer,
 	}
 	r.DepResolver = depresolver.NewDependencyResolver()
 	r.Config = &expected

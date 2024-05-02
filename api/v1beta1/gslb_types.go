@@ -51,7 +51,7 @@ type ResourceRef struct {
 // +k8s:openapi-gen=true
 type GslbSpec struct {
 	// Gslb-enabled Ingress Spec
-	Ingress IngressSpec `json:"ingress"`
+	Ingress IngressSpec `json:"ingress,omitempty"`
 	// Gslb Strategy spec
 	Strategy Strategy `json:"strategy"`
 	// ResourceRef spec

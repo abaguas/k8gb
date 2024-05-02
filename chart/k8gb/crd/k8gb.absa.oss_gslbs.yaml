@@ -382,7 +382,6 @@ spec:
                 - type
                 type: object
             required:
-            - ingress
             - strategy
             type: object
           status:

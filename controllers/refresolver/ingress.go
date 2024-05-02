@@ -40,18 +40,18 @@ func (rr *ReferenceResolver) GetIngress(gslb *k8gbv1beta1.Gslb, k8sClient client
 	if err != nil {
 		return nil, err
 	}
+	ingressEmbedded, err := rr.getGslbIngressEmbedded(gslb, k8sClient)
+	if err != nil {
+		return nil, err
+	}
+	if ingressEmbedded != nil {
+		ingressList = append(ingressList, *ingressEmbedded)
+	}
+
 	for _, ingress := range ingressList {
 		log.Info().
 			Str("IngressName", ingress.Name).
 			Msg("Found Ingress")
-	}
-
-	ingress, err := rr.getGslbIngressEmbedded(gslb, k8sClient)
-	if err != nil {
-		return nil, err
-	}
-	if ingress != nil {
-		ingressList = append(ingressList, *ingress)
 	}
 
 	if len(ingressList) != 1 {
@@ -66,7 +66,7 @@ func (rr *ReferenceResolver) getGslbIngressEmbedded(gslb *k8gbv1beta1.Gslb, k8sC
 	if reflect.DeepEqual(gslb.Spec.Ingress, k8gbv1beta1.IngressSpec{}) {
 		log.Info().
 			Str("gslb", gslb.Name).
-			Msg("No configuration for Ingress resource")
+			Msg("No configuration for embedded Ingress resource")
 		return nil, nil
 	}
 

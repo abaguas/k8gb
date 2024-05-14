@@ -70,7 +70,6 @@ var (
 	}
 
 	defaultGslb = new(k8gbv1beta1.Gslb)
-	ipRange     = []string{"10.0.0.1", "10.0.0.2"}
 )
 
 func TestCanFilterOutDelegatedZoneEntryAccordingFQDNProvided(t *testing.T) {

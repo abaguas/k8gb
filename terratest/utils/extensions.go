@@ -122,10 +122,14 @@ func NewWorkflow(t *testing.T, cluster string, port int) *Workflow {
 }
 
 func (w *Workflow) WithIngress(path string) *Workflow {
+	var err error
 	if path == "" {
 		w.error = fmt.Errorf("empty ingress resource path")
 	}
-	w.settings.ingressResourcePath = path
+	w.settings.ingressResourcePath, err = filepath.Abs(path)
+	if err != nil {
+		w.error = fmt.Errorf("reading %s; %s", path, err)
+	}
 	return w
 }
 
@@ -148,9 +152,6 @@ func (w *Workflow) WithGslb(path, host string) *Workflow {
 		w.error = err
 	}
 	w.state.gslb.host = host
-	if err != nil {
-		w.error = err
-	}
 	return w
 }
 

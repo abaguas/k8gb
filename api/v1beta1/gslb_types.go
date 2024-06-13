@@ -45,6 +45,8 @@ type Strategy struct {
 type ResourceRef struct {
 	// Ingress selects a kubernetes.networking.k8s.io/v1.Ingress resource
 	Ingress metav1.LabelSelector `json:"ingress,omitempty"`
+	// VirtualService selects a virtualservices.networking.istio.io resource
+	VirtualService metav1.LabelSelector `json:"virtualService,omitempty"`
 }
 
 // GslbSpec defines the desired state of Gslb

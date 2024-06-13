@@ -62,5 +62,8 @@ func New(gslb *k8gbv1beta1.Gslb, k8sClient client.Client) (GslbReferenceResolver
 	if !reflect.DeepEqual(gslb.Spec.Ingress, k8gbv1beta1.IngressSpec{}) || !reflect.DeepEqual(gslb.Spec.ResourceRef.Ingress, metav1.LabelSelector{}) {
 		return NewIngressReferenceResolver(gslb, k8sClient)
 	}
+	if !reflect.DeepEqual(gslb.Spec.ResourceRef.VirtualService, k8gbv1beta1.IngressSpec{}) || !reflect.DeepEqual(gslb.Spec.ResourceRef.VirtualService, metav1.LabelSelector{}) {
+		return NewVirtualServiceReferenceResolver(gslb, k8sClient)
+	}
 	return nil, fmt.Errorf("incomplete gslb configuration, no ingress found")
 }

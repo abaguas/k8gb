@@ -56,7 +56,7 @@ spec:
                       controller or defaulting logic to specify a global default.
                     properties:
                       resource:
-                        description: Resource is an ObjectRef to another Kubernetes
+                        description: resource is an ObjectRef to another Kubernetes
                           resource in the namespace of the Ingress object. If resource
                           is specified, a service.Name and service.Port must not be
                           specified. This is a mutually exclusive setting with "Service".
@@ -78,23 +78,23 @@ spec:
                         - name
                         type: object
                       service:
-                        description: Service references a Service as a Backend. This
+                        description: service references a service as a backend. This
                           is a mutually exclusive setting with "Resource".
                         properties:
                           name:
-                            description: Name is the referenced service. The service
+                            description: name is the referenced service. The service
                               must exist in the same namespace as the Ingress object.
                             type: string
                           port:
-                            description: Port of the referenced service. A port name
+                            description: port of the referenced service. A port name
                               or port number is required for a IngressServiceBackend.
                             properties:
                               name:
-                                description: Name is the name of the port on the Service.
+                                description: name is the name of the port on the Service.
                                   This is a mutually exclusive setting with "Number".
                                 type: string
                               number:
-                                description: Number is the numerical port number (e.g.
+                                description: number is the numerical port number (e.g.
                                   80) on the Service. This is a mutually exclusive
                                   setting with "Name".
                                 format: int32
@@ -162,20 +162,20 @@ spec:
                             or ''#''.'
                           properties:
                             paths:
-                              description: A collection of paths that map requests
-                                to backends.
+                              description: paths is a collection of paths that map
+                                requests to backends.
                               items:
                                 description: HTTPIngressPath associates a path with
                                   a backend. Incoming urls matching the path are forwarded
                                   to the backend.
                                 properties:
                                   backend:
-                                    description: Backend defines the referenced service
+                                    description: backend defines the referenced service
                                       endpoint to which the traffic will be forwarded
                                       to.
                                     properties:
                                       resource:
-                                        description: Resource is an ObjectRef to another
+                                        description: resource is an ObjectRef to another
                                           Kubernetes resource in the namespace of
                                           the Ingress object. If resource is specified,
                                           a service.Name and service.Port must not
@@ -203,27 +203,27 @@ spec:
                                         - name
                                         type: object
                                       service:
-                                        description: Service references a Service
-                                          as a Backend. This is a mutually exclusive
+                                        description: service references a service
+                                          as a backend. This is a mutually exclusive
                                           setting with "Resource".
                                         properties:
                                           name:
-                                            description: Name is the referenced service.
+                                            description: name is the referenced service.
                                               The service must exist in the same namespace
                                               as the Ingress object.
                                             type: string
                                           port:
-                                            description: Port of the referenced service.
+                                            description: port of the referenced service.
                                               A port name or port number is required
                                               for a IngressServiceBackend.
                                             properties:
                                               name:
-                                                description: Name is the name of the
+                                                description: name is the name of the
                                                   port on the Service. This is a mutually
                                                   exclusive setting with "Number".
                                                 type: string
                                               number:
-                                                description: Number is the numerical
+                                                description: number is the numerical
                                                   port number (e.g. 80) on the Service.
                                                   This is a mutually exclusive setting
                                                   with "Name".
@@ -235,7 +235,7 @@ spec:
                                         type: object
                                     type: object
                                   path:
-                                    description: Path is matched against the path
+                                    description: path is matched against the path
                                       of an incoming request. Currently it can contain
                                       characters disallowed from the conventional
                                       "path" part of a URL as defined by RFC 3986.
@@ -243,8 +243,8 @@ spec:
                                       when using PathType with value "Exact" or "Prefix".
                                     type: string
                                   pathType:
-                                    description: 'PathType determines the interpretation
-                                      of the Path matching. PathType can be one of
+                                    description: 'pathType determines the interpretation
+                                      of the path matching. PathType can be one of
                                       the following values: * Exact: Matches the URL
                                       path exactly. * Prefix: Matches based on a URL
                                       path prefix split by ''/''. Matching is done
@@ -284,10 +284,10 @@ spec:
                       the ingress controller fulfilling the ingress supports SNI.
                     items:
                       description: IngressTLS describes the transport layer security
-                        associated with an Ingress.
+                        associated with an ingress.
                       properties:
                         hosts:
-                          description: Hosts are a list of hosts included in the TLS
+                          description: hosts is a list of hosts included in the TLS
                             certificate. The values in this list must match the name/s
                             used in the tlsSecret. Defaults to the wildcard host setting
                             for the loadbalancer controller fulfilling this Ingress,
@@ -297,12 +297,13 @@ spec:
                           type: array
                           x-kubernetes-list-type: atomic
                         secretName:
-                          description: SecretName is the name of the secret used to
+                          description: secretName is the name of the secret used to
                             terminate TLS traffic on port 443. Field is left optional
                             to allow TLS routing based on SNI hostname alone. If the
                             SNI host in a listener conflicts with the "Host" header
                             field used by an IngressRule, the SNI host is used for
-                            termination and value of the Host header is used for routing.
+                            termination and value of the "Host" header is used for
+                            routing.
                           type: string
                       type: object
                     type: array
@@ -312,6 +313,51 @@ spec:
                 properties:
                   ingress:
                     description: Ingress selects a kubernetes.networking.k8s.io/v1.Ingress
+                      resource
+                    properties:
+                      matchExpressions:
+                        description: matchExpressions is a list of label selector
+                          requirements. The requirements are ANDed.
+                        items:
+                          description: A label selector requirement is a selector
+                            that contains values, a key, and an operator that relates
+                            the key and values.
+                          properties:
+                            key:
+                              description: key is the label key that the selector
+                                applies to.
+                              type: string
+                            operator:
+                              description: operator represents a key's relationship
+                                to a set of values. Valid operators are In, NotIn,
+                                Exists and DoesNotExist.
+                              type: string
+                            values:
+                              description: values is an array of string values. If
+                                the operator is In or NotIn, the values array must
+                                be non-empty. If the operator is Exists or DoesNotExist,
+                                the values array must be empty. This array is replaced
+                                during a strategic merge patch.
+                              items:
+                                type: string
+                              type: array
+                          required:
+                          - key
+                          - operator
+                          type: object
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: matchLabels is a map of {key,value} pairs. A
+                          single {key,value} in the matchLabels map is equivalent
+                          to an element of matchExpressions, whose key field is "key",
+                          the operator is "In", and the values array contains only
+                          "value". The requirements are ANDed.
+                        type: object
+                    type: object
+                  virtualService:
+                    description: VirtualService selects a virtualservices.networking.istio.io
                       resource
                     properties:
                       matchExpressions:
@@ -402,9 +448,7 @@ spec:
                 description: LoadBalancer configuration
                 properties:
                   exposedIps:
-                    description: ExposedIPs on the local Load Balancer. This information
-                      is extracted automatically from the 'ingress' or 'resourceRef'
-                      configuration (optional)
+                    description: ExposedIPs on the local Load Balancer
                     items:
                       type: string
                     type: array
@@ -415,14 +459,10 @@ spec:
                   description: Servers holds the GSLB's servers' configuration
                   properties:
                     host:
-                      description: Hostname exposed by the GSLB. This information
-                        is extracted automatically from the 'ingress' or 'resourceRef'
-                        configuration (optional)
+                      description: Hostname exposed by the GSLB
                       type: string
                     services:
                       description: Kubernetes Services backing the load balanced application
-                        under the hostname. This information is extracted automatically
-                        from the 'ingress' or 'resourceRef' configuration (optional)
                       items:
                         description: NamespacedName holds a reference to a k8s resource
                         properties:

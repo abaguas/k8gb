@@ -25,7 +25,7 @@
         "minor",
         "patch",
       ],
-      "matchCurrentVersion": "!/^v?0/",
+      "matchCurrentVersion": "!/^v0/",
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
     }, {

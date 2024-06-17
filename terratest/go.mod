@@ -5,7 +5,7 @@ go 1.22.3
 require (
 	github.com/AbsaOSS/gopkg v0.1.3
 	github.com/gruntwork-io/terratest v0.41.16
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.20.6
 	k8s.io/apimachinery v0.20.6

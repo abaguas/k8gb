@@ -22,7 +22,7 @@ jobs:
           go-version: 1.22.3
 
       - name: Build artifacts
-        uses: goreleaser/goreleaser-action@d33b6f6aeabd7fed8bb3fbf32c4d890d29f48545
+        uses: goreleaser/goreleaser-action@22f558e822a647406e88af9722c1abfb028738e1
         with:
           version: v1.7.0
           args: release --rm-dist --skip-publish --skip-validate --snapshot --skip-sbom --skip-sign

@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           fetch-depth: 0
-      - uses: dave-mcconnell/helm-gh-pages-microservices@f189ab799cebdc5a1af82c47563a02cd2efe1fd4 # v0.1.2
+      - uses: dave-mcconnell/helm-gh-pages-microservices@ee933ac4d0312c4c96839ee82a60c58cfdc2ae71 # v1.1.1
         with:
           access-token: ${{ secrets.CR_TOKEN }}
           source-charts-folder: 'chart'

@@ -22,18 +22,18 @@ jobs:
       COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f8b229487278099721572481264761b1d4fdd530
+        uses: step-security/harden-runner@0d381219ddf674d61a7572ddd19d7941e271515c # v2.9.0
         with:
           egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
-      - uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           fetch-depth: 0
       - name: Get tag
         run: |
           previous_tag=$(git tag --sort=v:refname | tail -2 | head -1)
           echo "previous_tag=${previous_tag}" >> $GITHUB_ENV
-      - uses: heinrichreimer/github-changelog-generator-action@6653241a44afb59146f719f322005de49a5c3b38
+      - uses: heinrichreimer/github-changelog-generator-action@6f5b9494dd265d6fb7243a10c53dc0169c55f247 # v2.3
         with:
           token: ${{ secrets.CHANGELOG_GH_TOKEN }}
           project: k8gb
@@ -48,25 +48,25 @@ jobs:
           filterByMilestone: true
           unreleased: true
       - name: Install Cosign
-        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # renovate: tag=v3.3.0
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
         with:
           cosign-release: 'v1.12.1'
       - name: Install Syft
-        uses: anchore/sbom-action/download-syft@b5042e9d19d8b32849779bfe17673ff84aec702d # renovate: tag=v0.12.0
+        uses: anchore/sbom-action/download-syft@ab9d16d4b419c9d1a02df5213fa0ebe965ca5a57 # v0.17.1
       - name: Install signing key
         run: |
           echo '${{ secrets.COSIGN_PRIVATE_KEY }}' > cosign.key
       - name: Set up Go
-        uses: actions/setup-go@dd84a9531a6f8e72c321f2aa3b9048ed359670e4
+        uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
         with:
           go-version: 1.22.3
       - name: Login to Dockerhub
-        uses: docker/login-action@40891eba8c2bcd1309b07ba8b11232f313e86779
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b # renovate: tag=v4.2.0
+        uses: goreleaser/goreleaser-action@5742e2a039330cbb23ebf35f046f814d4c6ff811 # v5.1.0
         with:
           version: v1.7.0
           args: release --rm-dist --release-notes=changes
@@ -101,19 +101,19 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f8b229487278099721572481264761b1d4fdd530
+        uses: step-security/harden-runner@0d381219ddf674d61a7572ddd19d7941e271515c # v2.9.0
         with:
           egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # renovate: tag=v3.3.0
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
         with:
           cosign-release: 'v1.12.1'
 
       - name: Install Syft
-        uses: anchore/sbom-action/download-syft@b5042e9d19d8b32849779bfe17673ff84aec702d # renovate: tag=v0.12.0
+        uses: anchore/sbom-action/download-syft@ab9d16d4b419c9d1a02df5213fa0ebe965ca5a57 # v0.17.1
       - name: Login to Dockerhub
-        uses: docker/login-action@40891eba8c2bcd1309b07ba8b11232f313e86779
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -142,12 +142,12 @@ jobs:
       contents: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f8b229487278099721572481264761b1d4fdd530
+        uses: step-security/harden-runner@0d381219ddf674d61a7572ddd19d7941e271515c # v2.9.0
         with:
           egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
       - name: Generate provenance for Release
-        uses: philips-labs/slsa-provenance-action@37037a07a9316d7d379b3c7574f50e1f43d088b8
+        uses: philips-labs/slsa-provenance-action@752766b8a3b1ebd09d599e163eeec8fa39e677aa # v0.8.0
         id: provenance-step
         with:
           command: generate
@@ -162,7 +162,7 @@ jobs:
           [ "x${{steps.provenance-step.outcome}}" == "xfailure" ] && echo ":x: Uploading provenance for release failed, make sure to delete all the previous releases in GitHub web api before releasing." > "$GITHUB_STEP_SUMMARY" || true
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # renovate: tag=v3.3.0
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
         with:
           cosign-release: 'v1.12.1'
 
@@ -197,17 +197,17 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f8b229487278099721572481264761b1d4fdd530
+        uses: step-security/harden-runner@0d381219ddf674d61a7572ddd19d7941e271515c # v2.9.0
         with:
           egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # renovate: tag=v3.3.0
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
         with:
           cosign-release: 'v1.12.1'
 
       - name: Generate provenance for container image
-        uses: philips-labs/slsa-provenance-action@37037a07a9316d7d379b3c7574f50e1f43d088b8
+        uses: philips-labs/slsa-provenance-action@752766b8a3b1ebd09d599e163eeec8fa39e677aa # v0.8.0
         with:
           command: generate
           subcommand: container
@@ -219,7 +219,7 @@ jobs:
         run: |
           cat provenance.att | jq .predicate > provenance-predicate.att
       - name: Login to Dockerhub
-        uses: docker/login-action@40891eba8c2bcd1309b07ba8b11232f313e86779
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -248,7 +248,7 @@ jobs:
       CONTAINER_INFO: "${{ needs.release.outputs.container_info }}"
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@f8b229487278099721572481264761b1d4fdd530
+        uses: step-security/harden-runner@0d381219ddf674d61a7572ddd19d7941e271515c # v2.9.0
         with:
           egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 

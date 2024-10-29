@@ -29,6 +29,8 @@ k8gb:
   extGslbClustersGeoTags: "us"
   # -- Reconcile time in seconds
   reconcileRequeueSeconds: 30
+  # -- TTL of the NS and respective glue record used by external DNS
+  nsRecordTTL: 30
   coredns:
     # -- Extra CoreDNS server blocks
     extraServerBlocks: ""
@@ -42,7 +44,7 @@ k8gb:
   # -- Enable SplitBrain check (Infoblox only)
   splitBrainCheck: false
   # -- Metrics server address
-  metricsAddress: "0.0.0.0:8080"
+  metricsAddrees: "0.0.0.0:8080"
   securityContext:
     # -- For more options consult https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.28/#securitycontext-v1-core
     runAsNonRoot: true

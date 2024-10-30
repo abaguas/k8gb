@@ -22,6 +22,7 @@ import (
 	"context"
 	coreerrors "errors"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -59,7 +60,7 @@ func NewGslbAssistant(client client.Client, k8gbNamespace string, edgeDNSServers
 }
 
 // CoreDNSExposedIPs retrieves list of IP's exposed by CoreDNS
-func (r *Gslb) CoreDNSExposedIPs() ([]string, error) {
+func (r *Gslb) CoreDNSExposedIPs() ([]net.IP, error) {
 	serviceList := &corev1.ServiceList{}
 	sel, err := labels.Parse(coreDNSServiceLabel)
 	if err != nil {
@@ -102,7 +103,7 @@ func (r *Gslb) CoreDNSExposedIPs() ([]string, error) {
 	return extractIPFromLB(lb, r.edgeDNSServers)
 }
 
-func extractIPFromLB(lb corev1.LoadBalancerIngress, ns utils.DNSList) (ips []string, err error) {
+func extractIPFromLB(lb corev1.LoadBalancerIngress, ns utils.DNSList) (ips []net.IP, err error) {
 	if lb.Hostname != "" {
 		IPs, err := utils.Dig(lb.Hostname, ns...)
 		if err != nil {
@@ -114,7 +115,7 @@ func extractIPFromLB(lb corev1.LoadBalancerIngress, ns utils.DNSList) (ips []str
 		return IPs, nil
 	}
 	if lb.IP != "" {
-		return []string{lb.IP}, nil
+		return []net.IP{net.ParseIP(lb.IP)}, nil
 	}
 	return nil, nil
 }

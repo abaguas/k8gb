@@ -38,7 +38,7 @@ CLUSTER_GSLB_GATEWAY = docker network inspect ${CLUSTER_GSLB_NETWORK} -f '{{ (in
 GSLB_DOMAIN ?= cloud.example.com
 REPO := absaoss/k8gb
 SHELL := bash
-VALUES_YAML ?= ""
+VALUES_YAML ?= deploy/k8gb/values.yaml
 PODINFO_IMAGE_REPO ?= ghcr.io/stefanprodan/podinfo
 HELM_ARGS ?=
 K8GB_COREDNS_IP ?= kubectl get svc k8gb-coredns -n k8gb -o custom-columns='IP:spec.clusterIP' --no-headers
@@ -136,7 +136,7 @@ deploy-full-local-setup: ensure-cluster-size ## Deploy full local multicluster s
 		$(MAKE) create-local-cluster CLUSTER_NAME=$(CLUSTER_NAME)$$c ;\
 	done
 	@if [ "$(K8GB_LOCAL_VERSION)" = test ]; then $(MAKE) release-images ; fi
-	$(MAKE) deploy-$(K8GB_LOCAL_VERSION)-version DEPLOY_APPS=false
+	$(MAKE) deploy-$(K8GB_LOCAL_VERSION)-version DEPLOY_APPS=true
 
 .PHONY: deploy-stable-version
 deploy-stable-version:
@@ -157,7 +157,6 @@ deploy-test-version: ## Upgrade k8gb to the test version on existing clusters
 
 	@for c in $(CLUSTER_IDS); do \
 		$(MAKE) deploy-local-cluster CLUSTER_ID=$$c VERSION=$(SEMVER)-$(ARCH) CHART='./chart/k8gb' ;\
-		kubectl apply -n k8gb -f ./deploy/test/coredns-tcp-svc.yaml ;\
 	done
 
 .PHONY: list-running-pods
@@ -254,7 +253,6 @@ deploy-k8gb-with-helm:
 	helm -n k8gb upgrade -i k8gb $(CHART) -f $(VALUES_YAML) \
 		--set $(call get-helm-args,$(CLUSTER_ID)) \
 		--set k8gb.reconcileRequeueSeconds=10 \
-		--set k8gb.dnsZoneNegTTL=10 \
 		--set k8gb.imageTag=${VERSION:"stable"=""} \
 		--set k8gb.log.format=$(LOG_FORMAT) \
 		--set k8gb.log.level=$(LOG_LEVEL) \

@@ -44,7 +44,7 @@ HELM_ARGS ?=
 K8GB_COREDNS_IP ?= kubectl get svc k8gb-coredns -n k8gb -o custom-columns='IP:spec.clusterIP' --no-headers
 LOG_FORMAT ?= simple
 LOG_LEVEL ?= debug
-CONTROLLER_GEN_VERSION  ?= v0.15.0
+CONTROLLER_GEN_VERSION  ?= v0.16.5
 GOLIC_VERSION  ?= v0.7.2
 GOLANGCI_VERSION ?= v1.60.3
 POD_NAMESPACE ?= k8gb
@@ -136,7 +136,7 @@ deploy-full-local-setup: ensure-cluster-size ## Deploy full local multicluster s
 		$(MAKE) create-local-cluster CLUSTER_NAME=$(CLUSTER_NAME)$$c ;\
 	done
 	@if [ "$(K8GB_LOCAL_VERSION)" = test ]; then $(MAKE) release-images ; fi
-	$(MAKE) deploy-$(K8GB_LOCAL_VERSION)-version DEPLOY_APPS=true
+	$(MAKE) deploy-$(K8GB_LOCAL_VERSION)-version DEPLOY_APPS=false
 
 .PHONY: deploy-stable-version
 deploy-stable-version:
@@ -479,6 +479,20 @@ terratest: # Run terratest suite
 		exit 1;\
 	fi
 	cd terratest/test/ && go mod download && CLUSTERS_NUMBER=$(RUNNING_CLUSTERS) go test -v -timeout 25m -parallel=12 --tags=$(TEST_TAGS)
+
+# executes chainsaw e2e tests
+.PHONY: chainsaw
+chainsaw:
+	mkdir -p chainsaw/kubeconfig
+	k3d kubeconfig get test-gslb1 > chainsaw/kubeconfig/eu.config
+	k3d kubeconfig get test-gslb2 > chainsaw/kubeconfig/us.config
+	@$(eval RUNNING_CLUSTERS := $(shell k3d cluster list --no-headers | grep $(CLUSTER_NAME) -c))
+	@if [ "$(RUNNING_CLUSTERS)" -lt 2 ] ; then \
+		echo -e "$(RED)Make sure you run the tests against at least two running clusters$(NC)" ;\
+		exit 1;\
+	fi
+	cd chainsaw && CLUSTERS_NUMBER=$(RUNNING_CLUSTERS) chainsaw test --config ./config.yaml --values ./values.yaml
+	rm -r chainsaw/kubeconfig
 
 .PHONY: website
 website:

@@ -1,0 +1,21 @@
+apiVersion: k8gb.absa.oss/v1beta1
+kind: Gslb
+metadata:
+  name: roundrobin-embedded
+spec:
+  ingress:
+    ingressClassName: nginx
+    rules:
+      - host: roundrobin-embedded.cloud.example.com
+        http:
+          paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-podinfo
+                port:
+                  name: http
+  strategy:
+    type: roundRobin
+    dnsTtlSeconds: 5

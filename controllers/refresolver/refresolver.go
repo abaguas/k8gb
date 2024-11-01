@@ -25,6 +25,7 @@ import (
 	k8gbv1beta1 "github.com/k8gb-io/k8gb/api/v1beta1"
 	"github.com/k8gb-io/k8gb/controllers/refresolver/ingress"
 	"github.com/k8gb-io/k8gb/controllers/refresolver/istiovirtualservice"
+	"github.com/k8gb-io/k8gb/controllers/refresolver/lbservice"
 	"github.com/k8gb-io/k8gb/controllers/utils"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -32,9 +33,9 @@ import (
 // GslbReferenceResolver resolves references to other kubernetes resources concerning ingress configuration
 type GslbReferenceResolver interface {
 	// GetServers retrieves GSLB the server configuration
-	GetServers() ([]*k8gbv1beta1.Server, error)
+	GetServers(dnsZone string) ([]*k8gbv1beta1.Server, error)
 	// GetGslbExposedIPs retrieves the load balancer IP address of the GSLB
-	GetGslbExposedIPs(utils.DNSList) ([]string, error)
+	GetGslbExposedIPs(edgeDNSServers utils.DNSList) ([]string, error)
 }
 
 // New creates a new GSLBReferenceResolver
@@ -44,6 +45,9 @@ func New(gslb *k8gbv1beta1.Gslb, k8sClient client.Client) (GslbReferenceResolver
 	}
 	if gslb.Spec.ResourceRef.Kind == "Ingress" && gslb.Spec.ResourceRef.APIVersion == "networking.k8s.io/v1" {
 		return ingress.NewReferenceResolver(gslb, k8sClient)
+	}
+	if gslb.Spec.ResourceRef.Kind == "Service" && gslb.Spec.ResourceRef.APIVersion == "v1" {
+		return lbservice.NewReferenceResolver(gslb, k8sClient)
 	}
 	if gslb.Spec.ResourceRef.Kind == "VirtualService" {
 		if gslb.Spec.ResourceRef.APIVersion == "networking.istio.io/v1beta1" ||

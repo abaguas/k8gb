@@ -1,4 +1,4 @@
-package ingress
+package lbservice
 
 /*
 Copyright 2022 The k8gb Contributors.
@@ -33,46 +33,18 @@ const (
 func TestGetServers(t *testing.T) {
 	var tests = []struct {
 		name            string
-		ingressFile     string
+		svcFile         string
 		expectedServers []*k8gbv1beta1.Server
 	}{
 		{
-			name:        "single server",
-			ingressFile: "../testdata/ingress_referenced.yaml",
+			name:    "single server",
+			svcFile: "../testdata/lb_service.yaml",
 			expectedServers: []*k8gbv1beta1.Server{
 				{
-					Host: "ingress-referenced.cloud.example.com",
+					Host: "lb-service.cloud.example.com",
 					Services: []*k8gbv1beta1.NamespacedName{
 						{
-							Name:      "ingress-referenced",
-							Namespace: "test-gslb",
-						},
-					},
-				},
-			},
-		},
-		{
-			name:        "multiple servers",
-			ingressFile: "./testdata/ingress_multiple_servers.yaml",
-			expectedServers: []*k8gbv1beta1.Server{
-				{
-					Host: "h1.cloud.example.com",
-					Services: []*k8gbv1beta1.NamespacedName{
-						{
-							Name:      "s1",
-							Namespace: "test-gslb",
-						},
-					},
-				},
-				{
-					Host: "h2.cloud.example.com",
-					Services: []*k8gbv1beta1.NamespacedName{
-						{
-							Name:      "ss1",
-							Namespace: "test-gslb",
-						},
-						{
-							Name:      "ss2",
+							Name:      "lb-service",
 							Namespace: "test-gslb",
 						},
 					},
@@ -83,9 +55,9 @@ func TestGetServers(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// arrange
-			ingress := utils.FileToIngress(test.ingressFile)
+			svc := utils.FileToService(test.svcFile)
 			resolver := ReferenceResolver{
-				ingress: ingress,
+				lbService: svc,
 			}
 
 			// act
@@ -101,31 +73,31 @@ func TestGetServers(t *testing.T) {
 func TestGetGslbExposedIPs(t *testing.T) {
 	var tests = []struct {
 		name        string
-		ingressYaml string
+		svcFile     string
 		expectedIPs []string
 	}{
 		{
 			name:        "no exposed IPs",
-			ingressYaml: "./testdata/ingress_no_ips.yaml",
+			svcFile:     "./testdata/lb_service_no_ips.yaml",
 			expectedIPs: []string{},
 		},
 		{
 			name:        "single exposed IP",
-			ingressYaml: "../testdata/ingress_referenced.yaml",
+			svcFile:     "../testdata/lb_service.yaml",
 			expectedIPs: []string{"10.0.0.1"},
 		},
 		{
 			name:        "multiple exposed IPs",
-			ingressYaml: "./testdata/ingress_multiple_ips.yaml",
+			svcFile:     "./testdata/lb_service_multiple_ips.yaml",
 			expectedIPs: []string{"10.0.0.1", "10.0.0.2"},
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// arrange
-			ingress := utils.FileToIngress(test.ingressYaml)
+			svc := utils.FileToService(test.svcFile)
 			resolver := ReferenceResolver{
-				ingress: ingress,
+				lbService: svc,
 			}
 
 			// act

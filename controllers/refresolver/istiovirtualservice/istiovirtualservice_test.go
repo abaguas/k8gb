@@ -26,6 +26,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	dnsZone = "cloud.example.com"
+)
+
 func TestGetServers(t *testing.T) {
 	var tests = []struct {
 		name               string
@@ -100,7 +104,7 @@ func TestGetServers(t *testing.T) {
 			}
 
 			// act
-			servers, err := resolver.GetServers()
+			servers, err := resolver.GetServers(dnsZone)
 			assert.NoError(t, err)
 
 			// assert

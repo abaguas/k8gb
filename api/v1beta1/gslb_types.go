@@ -51,6 +51,29 @@ type ResourceRef struct {
 	metav1.LabelSelector `json:",inline"`
 }
 
+// MetricsHealthCheck holds the configuration for metrics based health checks
+// +k8s:openapi-gen=true
+type MetricsHealthCheck struct {
+	CustomMetric   CustomMetric   `json:"customMetric"`
+	ExternalMetric ExternalMetric `json:"externalMetric"`
+	// TODO create a validating policy that only one of the two can be defined
+}
+
+// CustomMetric query path parameters
+// https://github.com/kubernetes/design-proposals-archive/blob/main/instrumentation/custom-metrics-api.md#api-paths
+type CustomMetric struct {
+	Namespace  string `json:"namespace"`
+	ObjectType string `json:"objectType"`
+	ObjectName string `json:"objectName"`
+	MetricName string `json:"metricName"`
+}
+
+// ExternalMetric query path parameters
+type ExternalMetric struct {
+	Namespace  string `json:"namespace"`
+	MetricName string `json:"metricName"`
+}
+
 // GslbSpec defines the desired state of Gslb
 // +k8s:openapi-gen=true
 type GslbSpec struct {
@@ -60,6 +83,8 @@ type GslbSpec struct {
 	Strategy Strategy `json:"strategy"`
 	// ResourceRef spec
 	ResourceRef ResourceRef `json:"resourceRef,omitempty"`
+	// Health probe spec
+	MetricsHealthChecks []MetricsHealthCheck `json:"metricsHealthChecks,omitempty"`
 }
 
 // LoadBalancer holds the GSLB's load balancer configuration
@@ -89,8 +114,12 @@ type NamespacedName struct {
 
 // GslbStatus defines the observed state of Gslb
 type GslbStatus struct {
-	// Associated Service status
+	// ServiceHealth tracks the health of the endponts behind the Kubernetes Service
 	ServiceHealth map[string]HealthStatus `json:"serviceHealth"`
+	// MetricHealth tracks the health of the application according to metric health checks
+	MetricHealth map[string]HealthStatus `json:"metricHealth"`
+	// Health combines metric and service health status
+	Health map[string]HealthStatus `json:"health"`
 	// Current Healthy DNS record structure
 	HealthyRecords map[string][]string `json:"healthyRecords"`
 	// Cluster Geo Tag

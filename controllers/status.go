@@ -93,6 +93,25 @@ func (r *GslbReconciler) getServiceHealthStatus(gslb *k8gbv1beta1.Gslb) (map[str
 	return serviceHealth, nil
 }
 
+func (r *GslbReconciler) getMetricHealthStatus(gslb *k8gbv1beta1.Gslb) (map[string]k8gbv1beta1.HealthStatus, error) {
+}
+
+func (r *GslbReconciler) combineHealthStatus(serviceStatus map[string]k8gbv1beta1.HealthStatus, metricStatus map[string]k8gbv1beta1.HealthStatus) map[string]k8gbv1beta1.HealthStatus {
+	combinedStatus := make(map[string]k8gbv1beta1.HealthStatus, len(serviceStatus))
+
+	for host, _ := range serviceStatus {
+		if serviceStatus[host] == k8gbv1beta1.Healthy && metricStatus[host] == k8gbv1beta1.Healthy {
+			combinedStatus[host] = k8gbv1beta1.Healthy
+		} else if metricStatus[host] == k8gbv1beta1.NotFound {
+			combinedStatus[host] = serviceStatus[host]
+		} else {
+			combinedStatus[host] = k8gbv1beta1.Unhealthy
+		}
+	}
+
+	return combinedStatus
+}
+
 func (r *GslbReconciler) getHealthyRecords(gslb *k8gbv1beta1.Gslb) (map[string][]string, error) {
 
 	dnsEndpoint := &externaldns.DNSEndpoint{}

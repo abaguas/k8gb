@@ -315,6 +315,47 @@ spec:
                       type: object
                     type: array
                 type: object
+              metricsHealthChecks:
+                description: Health probe spec
+                items:
+                  description: MetricsHealthCheck holds the configuration for metrics
+                    based health checks
+                  properties:
+                    customMetric:
+                      description: |-
+                        CustomMetric query path parameters
+                        https://github.com/kubernetes/design-proposals-archive/blob/main/instrumentation/custom-metrics-api.md#api-paths
+                      properties:
+                        metricName:
+                          type: string
+                        namespace:
+                          type: string
+                        objectName:
+                          type: string
+                        objectType:
+                          type: string
+                      required:
+                      - metricName
+                      - namespace
+                      - objectName
+                      - objectType
+                      type: object
+                    externalMetric:
+                      description: ExternalMetric query path parameters
+                      properties:
+                        metricName:
+                          type: string
+                        namespace:
+                          type: string
+                      required:
+                      - metricName
+                      - namespace
+                      type: object
+                  required:
+                  - customMetric
+                  - externalMetric
+                  type: object
+                type: array
               resourceRef:
                 description: ResourceRef spec
                 properties:
@@ -402,6 +443,11 @@ spec:
               geoTag:
                 description: Cluster Geo Tag
                 type: string
+              health:
+                additionalProperties:
+                  type: string
+                description: Health combines metric and service health status
+                type: object
               healthyRecords:
                 additionalProperties:
                   items:
@@ -420,6 +466,12 @@ spec:
                     items:
                       type: string
                     type: array
+                type: object
+              metricHealth:
+                additionalProperties:
+                  type: string
+                description: MetricHealth tracks the health of the application according
+                  to metric health checks
                 type: object
               servers:
                 description: Servers configuration
@@ -450,12 +502,15 @@ spec:
               serviceHealth:
                 additionalProperties:
                   type: string
-                description: Associated Service status
+                description: ServiceHealth tracks the health of the endponts behind
+                  the Kubernetes Service
                 type: object
             required:
             - geoTag
+            - health
             - healthyRecords
             - loadBalancer
+            - metricHealth
             - servers
             - serviceHealth
             type: object

@@ -197,6 +197,15 @@ func (r *GslbReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	}
 	gslb.Status.ServiceHealth = serviceHealth
 
+	metricHealth, err := r.getMetricHealthStatus(gslb)
+	if err != nil {
+		m.IncrementError(gslb)
+		return result.RequeueError(err)
+	}
+	gslb.Status.MetricHealth = metricHealth
+
+	gslb.Status.Health = r.combineHealthStatus(gslb.Status.ServiceHealth, gslb.Status.MetricHealth)
+
 	// == external-dns dnsendpoints CRs ==
 	dnsEndpoint, err := r.gslbDNSEndpoint(gslb)
 	if err != nil {

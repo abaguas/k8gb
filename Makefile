@@ -253,7 +253,7 @@ deploy-k8gb-with-helm:
 	cd chart/k8gb && helm dependency update
 	helm -n k8gb upgrade -i k8gb $(CHART) -f $(VALUES_YAML) \
 		--set $(call get-helm-args,$(CLUSTER_ID)) \
-		--set k8gb.reconcileRequeueSeconds=10 \
+		--set k8gb.reconcileRequeueSeconds=2 \
 		--set k8gb.dnsZoneNegTTL=10 \
 		--set k8gb.imageTag=${VERSION:"stable"=""} \
 		--set k8gb.log.format=$(LOG_FORMAT) \

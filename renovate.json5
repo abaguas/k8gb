@@ -44,6 +44,11 @@
       ],
       "pinDigests": true
     },
+    {
+      "matchManagers": ["gomod"],
+      "matchPackageNames": ["go"],
+      "enabled": true 
+    }
   ],
   "regexManagers": [
     {

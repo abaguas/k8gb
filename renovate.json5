@@ -46,9 +46,10 @@
     },
     {
       "matchManagers": ["gomod"],
-      "matchPackageNames": ["go"],
-      "enabled": true 
-    }
+      "matchDepNames": ["go"],
+      "matchDepTypes": ["golang"],
+      "rangeStrategy": "bump"
+    } 
   ],
   "regexManagers": [
     {

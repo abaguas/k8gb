@@ -49,7 +49,7 @@
       "matchDepNames": ["go"],
       "matchDepTypes": ["golang"],
       "groupName": "golang version",
-      "groupSlug": "golang-version" 
+      "groupSlug": "golang-version",
       "rangeStrategy": "bump"
     },
     {

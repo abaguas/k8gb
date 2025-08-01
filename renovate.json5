@@ -14,7 +14,6 @@
   ],
   "labels": ["dependencies", "renovate"],
   "prConcurrentLimit": 15,
-  "postUpdateOptions": ["gomodTidy"],
   "packageRules": [
     {
       "matchPackagePatterns": [
@@ -50,6 +49,11 @@
       "matchDepNames": ["go"],
       "matchDepTypes": ["golang"],
       "rangeStrategy": "bump"
+    },
+    {
+      "matchPackagePatterns": ["^k8s\\.io/"],
+      "groupName": "kubernetes packages",
+      "groupSlug": "kubernetes-packages"
     } 
   ],
   "regexManagers": [

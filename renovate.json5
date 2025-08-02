@@ -14,6 +14,7 @@
   ],
   "labels": ["dependencies", "renovate"],
   "prConcurrentLimit": 15,
+  "postUpdateOptions": ["gomodTidy"],
   "packageRules": [
     {
       "matchPackagePatterns": [
@@ -44,6 +45,12 @@
       ],
       "pinDigests": true
     },
+    {
+      "matchManagers": ["gomod"],
+      "matchDepNames": ["go"],
+      "matchDepTypes": ["golang"],
+      "rangeStrategy": "bump"
+    } 
   ],
   "regexManagers": [
     {

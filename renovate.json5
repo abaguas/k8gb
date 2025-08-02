@@ -44,6 +44,19 @@
       ],
       "pinDigests": true
     },
+    {
+      "matchManagers": ["gomod"],
+      "matchDepNames": ["go"],
+      "matchDepTypes": ["golang"],
+      "groupName": "golang version",
+      "groupSlug": "golang-version",
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchPackagePatterns": ["^k8s\\.io/"],
+      "groupName": "kubernetes packages",
+      "groupSlug": "kubernetes-packages"
+    } 
   ],
   "regexManagers": [
     {

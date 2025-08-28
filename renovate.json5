@@ -160,7 +160,9 @@
       "matchStrings": [
         "GOLANGCI_VERSION \\?= v(?<currentValue>.*)",
       ],
-      "autoReplaceStringTemplate": "GOLANGCI_VERSION ?= v{{{newValue}}}"
+      "autoReplaceStringTemplate": "GOLANGCI_VERSION ?= v{{{newValue}}}",
+      "groupName": "update golangci-lint version",
+      "groupSlug": "update-golangci-lint-version"
     },
     // update golangci-lint version in GitHub Actions workflow
     {
@@ -169,9 +171,11 @@
       "depNameTemplate": "golangci/golangci-lint",
       "extractVersionTemplate": "^v(?<version>.*)$",
       "matchStrings": [
-        "      - name: golangci-lint\n        uses: golangci/golangci-lint-action@(?<actionChecksum>[^\\s]+) # v(?<actionCommentVersion>[^\\s]+)\n        with:\n          version: v(?<currentValue>.*)",
+        "\\s*version: v(?<currentValue>.*)",
       ],
-      "autoReplaceStringTemplate": "      - name: golangci-lint\n        uses: golangci/golangci-lint-action@{{{actionChecksum}}} # v{{{actionCommentVersion}}}\n        with:\n          version: v{{{newValue}}}"
+      "autoReplaceStringTemplate": "\\s*version: v{{{newValue}}}",
+      "groupName": "update golangci-lint version",
+      "groupSlug": "update-golangci-lint-version"
     },
   ],
 }

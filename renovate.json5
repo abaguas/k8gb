@@ -169,9 +169,9 @@
       "depNameTemplate": "golangci/golangci-lint",
       "extractVersionTemplate": "^v(?<version>.*)$",
       "matchStrings": [
-        "(\\s*)version: v(?<currentValue>.*)",
+        "\\s*version: v(?<currentValue>.*)",
       ],
-      "autoReplaceStringTemplate": "{{{1}}}version: v{{{newValue}}}"
+      "autoReplaceStringTemplate": "          version: v{{{newValue}}}"
     },
   ],
 }
